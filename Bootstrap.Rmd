@@ -1,5 +1,5 @@
 ---
-title: " Bootstratp"
+title: "Bootstrap"
 author: "Marcin Mazurek"
 date:  '2017-11-30'
 output:
@@ -14,13 +14,12 @@ output:
 
 
 
+# Resampling
 
-#Repróbkowanie
+A method for estimating prediction error.
 
-Metoda estymacji błędu predykcji. 
-
-##Zbiór testowy wyodrębniony z próby prostej: 
-1. Klasyczne podejśćie:  Jeżeli dysponujemy wystarczająco liczną próbą, wyodrębniamy z niej ciąg walidujący (testowy). 
+## Test set extracted from a simple sample:
+1. Classical approach: If we have a sufficiently large sample, we extract a validation (test) set from it.
 
 ```{r}
 library(ISLR)
@@ -35,19 +34,19 @@ summary(lmfit)
 
 mse=mean((test$mpg - predict(lmfit, test))^2)
 
-#Estymacja błędu predykcji na podstawie ciągu testowego: 
+# Estimation of prediction error based on the test set:
 mse
 ```
 
 
-##Cross Validation
-Zbiór dzielony jest na ${k}$ partycji. 
+## Cross Validation
+The dataset is divided into ${k}$ partitions.
 
-K-fold : jedna z ${k}$ partycji jest używana do  testowania, pozostałe ${k-1}$ partrycje służą do budowy modelu. Procedura powtarzana ${k}$ - krotnie  (dla każdej partycji  wykorzystywanej jako testowa)
+K-fold: one of the ${k}$ partitions is used for testing, the remaining ${k-1}$ partitions are used for model building. The procedure is repeated ${k}$ times (for each partition used as the test set).
 
-LOOCV: szczególny przypadek K-fold, w którym liczba partycji odpowiada liczbie obserwacji. 
+LOOCV: a special case of K-fold where the number of partitions equals the number of observations.
 
-###Leave-One-Out 
+### Leave-One-Out
 
 
 ```{r}
@@ -63,7 +62,7 @@ for (i in 1:nrow(Auto)){
  mse 
 ```
 
-To samo działanie z wykorzystaniem biblioteki boot: 
+The same operation using the boot library:
 
 
 ```{r}
@@ -71,18 +70,18 @@ library(ISLR)
 library(boot)
 lmfit<-glm(mpg~horsepower+cylinders+ weight, data=Auto)
 
-#LOOCV: 
+# LOOCV:
 k=nrow(Auto)
 m<-cv.glm(data=Auto, lmfit, K=k)
 
-#Błąd:
+# Error:
 mse = m$delta[1]
 mse 
 ```
 
 
 
-###k-fold Cross validation 
+### k-fold Cross validation
 
 
 
@@ -90,10 +89,10 @@ mse
 
 lmfit<-glm(mpg~horsepower+cylinders+ weight, data=Auto)
 
-#LOOCV: 
+# LOOCV:
 m<-cv.glm(data=Auto, lmfit, K=5)
 
-#Błąd wyznaczony w oparciu o średnią z 5: 
+# Error calculated based on the average of 5 folds:
 mse = m$delta[1]
 mse 
 
@@ -105,39 +104,39 @@ mse
 
 
 
-##Bootstrap
+## Bootstrap
 
-pull oneself up by one's bootstrap  - wydobyć się z opresji używając własnych sił 
+Pull oneself up by one's bootstrap - to get out of trouble using one's own resources
 
-Metoda szacowania rozkładów estymatorów, w sytuacji gdy nie  nakładamy żadnych założeń na rozkład w zmiennych w populacji 
+A method for estimating the distribution of estimators when we do not make any assumptions about the distribution of variables in the population.
 
-1. Nie znamy rozkładu F 
-2. Dysponujemy jedynie pojedynczą realizacją prostej próby losowej z tego rozkładu
+1. We do not know the distribution F
+2. We only have a single realization of a simple random sample from this distribution
 
-###Estymacja rozkładu statystyki metodą bootstrap 
+### Estimating the distribution of a statistic using the bootstrap method
 
 
 
-Ogólny zarys procedury: 
+General outline of the procedure:
 
-Sampling distribution statystyki S: 
+Sampling distribution of statistic S:
 
 $S=S(x_1, x_2, \cdots, x_n)$
 
-w oparciu o prostą próbę losową:
+based on a simple random sample:
 
 $\mathbf{X}=(X_1, X_2, \cdots, X_n)$
 
-1. Utwórz próbki poprzez zwracanie z losowaniem:    $\mathbf{x_1^{*}},  \cdots, \mathbf {x_M^{*}}$  : próba boostrap
+1. Create samples by sampling with replacement: $\mathbf{x_1^{*}}, \cdots, \mathbf{x_M^{*}}$ : bootstrap sample
 
-2. Wyznacz interesującą statystykę $S(\mathbf{x_1^{*}}), \cdots,S(\mathbf{x_M^{*}})$ dla każdej próbki. Rozkład statystyki otrzymanej na próbkach to bootstrap distribution. 
+2. Calculate the statistic of interest $S(\mathbf{x_1^{*}}), \cdots, S(\mathbf{x_M^{*}})$ for each sample. The distribution of the statistic obtained from the samples is the bootstrap distribution.
 
-3. Bootstrap distribution daje nam informację o rozkładzie cechy S
-
-
+3. The bootstrap distribution provides information about the distribution of the statistic S
 
 
-### Bootstrap  - szacowanie rozkładów estymatorów
+
+
+### Bootstrap - estimating distributions of estimators
 
 ```{r}
 library(ISLR)
@@ -150,7 +149,7 @@ for (i in 1:30){
   index <- sample(1:nrow(Auto), nrow(Auto), replace=TRUE) 
   train <- Auto[index,]
   test  <- Auto[-index,]
-  #uczenie sieci , linear,output =FALSE, gdyż zmienne binarne
+  # training the network, linear.output = FALSE because variables are binary
   lmfit<-glm(mpg~horsepower+cylinders+ weight, data=train)
   coef[i,]<-lmfit$coefficients
 }
@@ -174,27 +173,27 @@ summary(lmfit)
 
 
 
-###Klasyfikacja przy pomocy sieci neuronowych 
+### Classification using neural networks
 ```{r}
 library(neuralnet)
 library(nnet)
 data(iris)
 
 
-#one-hot encoder - kodowanie binarne zmiennej 
+# one-hot encoder - binary encoding of the variable
 iris$setosa<-  ifelse(iris$Species == "setosa",1,0)
 iris$versicolor<-ifelse(iris$Species == "versicolor",1,0)
 iris$virginica<-ifelse(iris$Species == "virginica",1,0)
 
-#zamiast tego kodu można użyć z biblioteki nnet: 
+# instead of this code, you can use from the nnet library:
 species_enc<-class.ind(iris$Species)
 
 
-#normalizujemy atrybuty wejsciowe i dolaczamy trzy binarne kolumny wyjsciowe 
+# normalize input attributes and attach three binary output columns
 iris<-cbind(scale(iris[,1:4]), iris[,6:8])
 
 
-#przyklad budowy sieci neuronowej  z dwiema ukrytymi warstwami neuronow 
+# example of building a neural network with one hidden layer
 f<-as.formula("setosa+versicolor+virginica~Sepal.Width + Sepal.Length + Petal.Width + Petal.Length")
 nn<-neuralnet(f, hidden=c(1), data=iris, linear.output=FALSE)
 plot(nn)
@@ -202,54 +201,54 @@ pred<-compute(nn,iris[,1:4])$net.result
 pred_idx<-max.col(pred)
 actuals<-iris[,5:7] 
 actuals_idx<-max.col(actuals)
-#dokladnosc modelu procentowa: dla zgodny rekordow mjets TRUE(1), dla błędaów FALSE(0)
+# percentage model accuracy: TRUE(1) for matching records, FALSE(0) for errors
 accuracy<- mean(actuals_idx==pred_idx)
 accuracy
 
 ```
 
 
-### Bootstrap 0.632 w klasyfikacji 
+### Bootstrap 0.632 in classification
 
-$n$ - liczba obserwacji w próbie danych, losujemy ze zwracaniem $n$ obserwacji. 
+$n$ - number of observations in the data sample, we sample with replacement $n$ observations.
 
-Prawdopodobieństwo nie wylosowania obserwacji wynosi: 
-$(1- \frac{1}{n})^n \approx e^{-1} \approx  0.368$, 
+The probability of not drawing an observation is:
+$(1- \frac{1}{n})^n \approx e^{-1} \approx 0.368$,
 
-więc oczekiwana liczba unikalnych obserwacji w wulosowanym zbiorze to $0.632n$. 
+so the expected number of unique observations in the drawn set is $0.632n$.
 
-Szacowanie dokładności jest wykonywane mając $b$ próbek bootstrapowych, niech $acc_{i}$ będzie estymatą  dokładności klasyfikacji dla ${i}$ - tej próbki bootstrapowej. 
+Accuracy estimation is performed with $b$ bootstrap samples, let $acc_{i}$ be the estimate of classification accuracy for the ${i}$-th bootstrap sample.
 
 $acc_{boot} = \frac{1}{b} \sum_{i=1}^{b}(0.632*acc_{i}+0.368*acc_i)$
 
-Wariancja może być oszacowana na podstawie wariancji estymatora
+Variance can be estimated based on the variance of the estimator
 
 
 ```{r}
-#przyklad #0.532 bootstrap do szacowania błędu klasyfikacji 
+# example of 0.632 bootstrap for estimating classification error
 acc_table = NULL 
 
 for (i in 1:10){
   index <- sample(1:nrow(iris), nrow(iris), replace=TRUE) 
   train <- iris[index,]
   test  <- iris[-index,]
-  #uczenie sieci , linear,output =FALSE, gdyż zmienne binarne
+  # training the network, linear.output = FALSE because variables are binary
   nn<-neuralnet(f, hidden=c(1),  data=iris, linear.output = FALSE)
-  #wyznaczenie prognoz
+  # calculate predictions
   pred<-compute(nn,test[,1:4])$net.result
   pred_idx<-max.col(pred)
-  #aktualne 
+  # actuals
   actuals<-test[,5:7] 
   actuals_idx<-max.col(actuals)
   
-  #udzial dobrze zaklasyfikowanych: 
+  # proportion of correctly classified:
   accuracy<- mean(actuals_idx==pred_idx)
   acc_table[i]= accuracy
 }
 
 acc_table
 
-#kalkulacja bledu predykcji 
+# calculation of prediction error
 
 
 avg_acc<- mean(acc_table)
@@ -260,7 +259,6 @@ acc_boot
 
 
 ```
-
 
 
 
